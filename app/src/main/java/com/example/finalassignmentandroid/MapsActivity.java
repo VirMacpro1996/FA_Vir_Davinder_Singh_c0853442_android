@@ -113,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 setMarker(latLng);
                String address =  getAddress(latLng);
                String city = getCity(latLng);
-                MarkerModel markerModel = new MarkerModel(0, latLng.latitude, latLng.longitude, city , address , false);
+                MarkerModel markerModel = new MarkerModel(0, latLng.latitude, latLng.longitude, city , address , 0);
                  markerModelList.add(markerModel);
 
 
