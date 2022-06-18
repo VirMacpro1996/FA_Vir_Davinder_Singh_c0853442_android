@@ -55,6 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = "MainActivity";
     private static final long UPDATE_INTERVAL = 5000;
     private static final long FASTEST_INTERVAL = 3000;
+    int mName = 0;
 
 
     private FusedLocationProviderClient mClient;
@@ -96,6 +97,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             startUpdatingLocation();
         }
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng latLng) {
+
+
+                setMarker(latLng);
+
+
+            }
+
+
+        });
+    }
+
+    private void setMarker(LatLng latLng) {
+
+        String ch = "A";
+        switch (mName) {
+            case 0:
+                ch = "A";
+                break;
+            case 1:
+                ch = "B";
+                break;
+            case 2:
+                ch = "C";
+                break;
+            case 3:
+                ch = "D";
+                break;
+            default:
+                ch = "O";
+                break;
+        }
+
+        MarkerOptions options = new MarkerOptions()
+                .position(latLng).title(ch)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .snippet("nice place");
+        options.draggable(true);
+        favMarker = mMap.addMarker(options);
+        favMarker.setTag(mName);
+        mName++;
+        markerList.add(favMarker);
     }
 
     @SuppressLint("MissingPermission")
