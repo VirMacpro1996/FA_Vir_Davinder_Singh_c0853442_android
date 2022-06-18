@@ -7,6 +7,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,8 +45,10 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.example.finalassignmentandroid.databinding.ActivityMapsBinding;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -110,35 +114,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker markers) {
+                Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+                List<Address> addresses = null; //1 num of possible location returned
+                try {
+                    addresses = geocoder.getFromLocation(markers.getPosition().latitude, markers.getPosition().longitude, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String address = addresses.get(0).getAddressLine(0); //0 to obtain first possible address
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
+                //create your custom title
+                String title = address +"-"+city+"-"+state;
+                markers.setTitle(title);
+                markers.showInfoWindow();
+                return true;
+            }
+        });
     }
 
     private void setMarker(LatLng latLng) {
 
         String ch = "A";
-        switch (mName) {
-            case 0:
-                ch = "A";
-                break;
-            case 1:
-                ch = "B";
-                break;
-            case 2:
-                ch = "C";
-                break;
-            case 3:
-                ch = "D";
-                break;
-            default:
-                ch = "O";
-                break;
-        }
+
 
         MarkerOptions options = new MarkerOptions()
                 .position(latLng).title(ch)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                 .snippet("nice place");
-        options.draggable(true);
+                 options.draggable(true);
         favMarker = mMap.addMarker(options);
+
         favMarker.setTag(mName);
         mName++;
         markerList.add(favMarker);
