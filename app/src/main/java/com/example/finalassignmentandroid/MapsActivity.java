@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -66,6 +67,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private final List<Marker> markerList = new ArrayList<>();
+    private List<MarkerModel> markerModelList = new ArrayList<>();
+    private MarkerModel markerModel ;
 
     private Marker userMarker, favMarker , visitedMarker ;
 
@@ -108,37 +111,126 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                 setMarker(latLng);
+               String address =  getAddress(latLng);
+               String city = getCity(latLng);
+                MarkerModel markerModel = new MarkerModel(0, latLng.latitude, latLng.longitude, city , address , false);
+                 markerModelList.add(markerModel);
+
+
+
 
 
             }
 
 
         });
+
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker markers) {
                 Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
                 List<Address> addresses = null; //1 num of possible location returned
+                String address ,city ,country , postalCode ;
                 try {
                     addresses = geocoder.getFromLocation(markers.getPosition().latitude, markers.getPosition().longitude, 1);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                String address = addresses.get(0).getAddressLine(0); //0 to obtain first possible address
-                String city = addresses.get(0).getLocality();
-                String state = addresses.get(0).getAdminArea();
-                String country = addresses.get(0).getCountryName();
-                String postalCode = addresses.get(0).getPostalCode();
+
+                if(Objects.requireNonNull(addresses).isEmpty())
+                {
+                    address = "date";
+                    city = country = postalCode = "";
+                }
+                else {
+
+                    address = addresses.get(0).getAddressLine(0); //0 to obtain first possible address
+                     city = addresses.get(0).getLocality();
+                    String state = addresses.get(0).getAdminArea();
+                     country = addresses.get(0).getCountryName();
+                     postalCode = addresses.get(0).getPostalCode();
+
+                }
                 //create your custom title
-                String title = address +"-"+city+"-"+state;
+                String title = address ;
                 markers.setTitle(title);
+               markers.setSnippet(postalCode + " , " + city + " , " + country);
                 markers.showInfoWindow();
                 return true;
             }
         });
     }
 
+    private String getCity(LatLng latLng) {
+
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        List<Address> addresses = null; //1 num of possible location returned
+        String address ,city ,country , postalCode ;
+        try {
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(Objects.requireNonNull(addresses).isEmpty())
+        {
+            address = "date";
+            city = country = postalCode = "";
+        }
+        else {
+
+
+
+            address = addresses.get(0).getAddressLine(0); //0 to obtain first possible address
+            city = addresses.get(0).getLocality();
+
+            //MarkerModel markerModel = new MarkerModel(0, latlng.latitude, latlng.longitude, city , false);
+            // markerModelList.add(markerModel);
+//            String state = addresses.get(0).getAdminArea();
+//            country = addresses.get(0).getCountryName();
+//            postalCode = addresses.get(0).getPostalCode();
+
+        }
+
+        return  city;
+    }
+
+
+    private String getAddress(LatLng latlng)
+    {
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        List<Address> addresses = null; //1 num of possible location returned
+        String address ,city ,country , postalCode ;
+        try {
+            addresses = geocoder.getFromLocation(latlng.latitude, latlng.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(Objects.requireNonNull(addresses).isEmpty())
+        {
+            address = "date";
+            city = country = postalCode = "";
+        }
+        else {
+
+
+
+            address = addresses.get(0).getAddressLine(0); //0 to obtain first possible address
+            city = addresses.get(0).getLocality();
+
+            //MarkerModel markerModel = new MarkerModel(0, latlng.latitude, latlng.longitude, city , false);
+           // markerModelList.add(markerModel);
+//            String state = addresses.get(0).getAdminArea();
+//            country = addresses.get(0).getCountryName();
+//            postalCode = addresses.get(0).getPostalCode();
+
+        }
+
+        return  address;
+
+    }
     private void setMarker(LatLng latLng) {
 
         String ch = "A";
@@ -154,6 +246,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         favMarker.setTag(mName);
         mName++;
         markerList.add(favMarker);
+
+
     }
 
     @SuppressLint("MissingPermission")
@@ -171,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Location location = locationResult.getLastLocation();
                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-//            userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Vir is Here").snippet("your are here"));
+           userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Vir").snippet("your are here"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
             }
         };
