@@ -60,7 +60,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private final List<MarkerModel> markerModelList = new ArrayList<>();
-    private MarkerModel markerModel;
+
+
 
     private Marker userMarker, favMarker, visitedMarker;
 
