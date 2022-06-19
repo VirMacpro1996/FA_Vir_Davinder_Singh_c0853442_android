@@ -212,6 +212,8 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom((new LatLng(markerModel.getLat() , markerModel.getLng()))
                 , 13));
 
+
+
     }
 
     @Override
