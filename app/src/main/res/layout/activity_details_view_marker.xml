@@ -48,15 +48,15 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/isVisited_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:src="@drawable/check"
-        android:id="@+id/check_btn"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="16dp"
 
-        />
+        android:src="@drawable/check" />
 
 </RelativeLayout>

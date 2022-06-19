@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
     TextView city , address ;
     private GoogleMap mMap;
     Marker marker;
+    FloatingActionButton isVisited;
 
 
     @Override
@@ -80,6 +83,31 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
 
         city.setText(markerModel.geCity());
         address.setText(markerModel.getAddress());
+
+
+        isVisited  = findViewById(R.id.isVisited_btn);
+        if (markerModel.isVisited() == 1 )
+        {
+            isVisited.setVisibility(View.GONE);
+        }
+
+
+        isVisited.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String sql = "UPDATE markers SET isvisited = ?  WHERE id = ? ";
+                sqLiteDatabase.execSQL(sql,
+                        new String[]{
+                                String.valueOf(1) ,
+                                String.valueOf(id)
+                        });
+
+                isVisited.setVisibility(View.GONE);
+            }
+
+
+        });
 
 
 
