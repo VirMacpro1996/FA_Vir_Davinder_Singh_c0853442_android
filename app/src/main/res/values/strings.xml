@@ -8,4 +8,5 @@
     <string name="update_the_marker">Update the marker</string>
     <string name="enter_the_city">Enter the city</string>
     <string name="enter_the_address">Enter the Address</string>
+    <string name="add">Add</string>
 </resources>

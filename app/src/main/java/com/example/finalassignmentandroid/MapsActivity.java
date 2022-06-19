@@ -99,13 +99,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             startUpdatingLocation();
         }
 
+//
+//        Intent i = getIntent();
+//        Double lat = i.getDoubleExtra("lat", 0);
+//        Double lng = i.getDoubleExtra("lng", 0);
+//        id = i.getIntExtra("id", 0);
+//        System.out.println("lat : " + lat + "long : " + lng + "----" + id);
+//        setMarker(new LatLng(lat, lng));
 
-        Intent i = getIntent();
-        Double lat = i.getDoubleExtra("lat", 0);
-        Double lng = i.getDoubleExtra("lng", 0);
-        id = i.getIntExtra("id", 0);
-        System.out.println("lat : " + lat + "long : " + lng + "----" + id);
-        setMarker(new LatLng(lat, lng));
+
 
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
@@ -304,27 +306,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String address, city, country, postalCode;
         try {
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+
+            if (addresses.isEmpty()) {
+                address = "date";
+                city = country = postalCode = "";
+            } else {
+
+                address = addresses.get(0).getAddressLine(0); //0 to obtain first possible address
+                city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                country = addresses.get(0).getCountryName();
+                postalCode = addresses.get(0).getPostalCode();
+                //create your custom title
+                String title = address;
+                favMarker.setTitle(title);
+                favMarker.setSnippet(postalCode + " , " + city + " , " + country);
+                favMarker.showInfoWindow();
+
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (Objects.requireNonNull(addresses).isEmpty()) {
-            address = "date";
-            city = country = postalCode = "";
-        } else {
 
-            address = addresses.get(0).getAddressLine(0); //0 to obtain first possible address
-            city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            country = addresses.get(0).getCountryName();
-            postalCode = addresses.get(0).getPostalCode();
-
-        }
-        //create your custom title
-        String title = address;
-        favMarker.setTitle(title);
-        favMarker.setSnippet(postalCode + " , " + city + " , " + country);
-        favMarker.showInfoWindow();
 
 
 
@@ -347,8 +351,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Location location = locationResult.getLastLocation();
                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-                //userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Vir").snippet("your are here"));
-                //  mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
+                userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Vir").snippet("your are here"));
+                  mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,13));
             }
         };
 
