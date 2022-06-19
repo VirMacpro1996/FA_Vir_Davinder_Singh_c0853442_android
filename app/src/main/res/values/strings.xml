@@ -9,4 +9,5 @@
     <string name="enter_the_city">Enter the city</string>
     <string name="enter_the_address">Enter the Address</string>
     <string name="add">Add</string>
+    <string name="change">Change</string>
 </resources>

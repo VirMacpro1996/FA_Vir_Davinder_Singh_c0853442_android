@@ -8,8 +8,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -18,18 +20,25 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCallback {
 
 
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 100;
     private final List<MarkerModel> markerModelList = new ArrayList<>();
     SQLiteDatabase sqLiteDatabase;
     private MarkerModel markerModel;
-    TextView city , address ;
+    TextView city , address ,change_btn;
     private GoogleMap mMap;
     Marker marker;
     FloatingActionButton isVisited;
@@ -40,6 +49,8 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details_view_marker);
 
+        Places.initialize(getApplicationContext(),"AIzaSyCZzuYsD-YRcvK8pT6MDXLPnwCLNoCe-kU");
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -47,6 +58,11 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
         sqLiteDatabase = openOrCreateDatabase("products_db", MODE_PRIVATE, null);
 
 
+       loadData();
+
+    }
+
+    private void loadData() {
         Intent i = getIntent();
         Double lat = i.getDoubleExtra("lat", 0);
         Double lng = i.getDoubleExtra("lng", 0);
@@ -109,7 +125,17 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
 
         });
 
+        change_btn = findViewById(R.id.change_address_btn);
+        change_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.ADDRESS, Place.Field.LAT_LNG);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                        .build(getApplicationContext());
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+            }
+        });
 
 
     }
@@ -128,5 +154,44 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom((new LatLng(markerModel.getLat() , markerModel.getLng()))
                 , 13));
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                //Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                markerModel.setLat(place.getLatLng().latitude);
+                markerModel.setLng(place.getLatLng().longitude);
+                markerModel.setAddress(place.getAddress());
+
+                if (place.getLatLng().latitude != 0) {
+                    LatLng latLng = new LatLng(place.getLatLng().latitude,
+                            place.getLatLng().longitude);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+                }
+
+                String sql = "UPDATE markers SET latitude = ? , longitude = ? , address = ?  WHERE id = ? ";
+                sqLiteDatabase.execSQL(sql,
+                        new String[]{
+                                String.valueOf(markerModel.getLat()),
+                                String.valueOf(markerModel.getLng()),
+                                String.valueOf(markerModel.getAddress()),
+                                String.valueOf(markerModel.getId())
+
+                        });
+                loadData();
+                onMapReady(mMap);
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Status status = Autocomplete.getStatusFromIntent(data);
+               // Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
