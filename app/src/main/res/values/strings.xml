@@ -5,4 +5,7 @@
     <string name="city_placeholder">Toronto</string>
     <string name="update">Update</string>
     <string name="delete">Delete</string>
+    <string name="update_the_marker">Update the marker</string>
+    <string name="enter_the_city">Enter the city</string>
+    <string name="enter_the_address">Enter the Address</string>
 </resources>
