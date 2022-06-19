@@ -1,10 +1,13 @@
 package com.example.finalassignmentandroid;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -38,7 +41,7 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
     private final List<MarkerModel> markerModelList = new ArrayList<>();
     SQLiteDatabase sqLiteDatabase;
     private MarkerModel markerModel;
-    TextView city , address ,change_btn;
+    TextView city , address ,change_btn , change_city;
     private GoogleMap mMap;
     Marker marker;
     FloatingActionButton isVisited;
@@ -125,7 +128,60 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
 
         });
 
+        change_city = findViewById(R.id.change_city_btn);
         change_btn = findViewById(R.id.change_address_btn);
+
+        change_city.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetailsViewMarker.this);
+
+                LayoutInflater inflater = LayoutInflater.from(DetailsViewMarker.this);
+                View v = inflater.inflate(R.layout.dialog_update_marker, null);
+                builder.setView(v);
+
+                AlertDialog dialog = builder.create();
+
+
+                EditText cityEt = v.findViewById(R.id.et_city);
+
+                cityEt.setText(markerModel.geCity());
+
+
+                v.findViewById(R.id.btn_update_dialog).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        String city = cityEt.getText().toString().trim();
+
+                        if (city.isEmpty()) {
+                            cityEt.setError("city field is empty");
+                            cityEt.requestFocus();
+                            return;
+                        }
+
+
+
+                        String sql = "UPDATE markers SET city = ?  WHERE id = ? ";
+                        sqLiteDatabase.execSQL(sql,
+                                new String[]{
+                                        city,
+                                        String.valueOf(markerModel.getId())
+                                });
+
+                        loadData();
+                        dialog.dismiss();
+
+
+                    }
+
+
+                });
+                dialog.show();
+            }
+        });
         change_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -136,6 +192,8 @@ public class DetailsViewMarker extends AppCompatActivity implements OnMapReadyCa
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
             }
         });
+
+
 
 
     }
