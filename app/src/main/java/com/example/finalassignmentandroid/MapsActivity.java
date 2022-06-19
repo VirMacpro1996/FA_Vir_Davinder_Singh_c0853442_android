@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -105,6 +106,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             startUpdatingLocation();
         }
 
+
+
+
+
+        Intent i = getIntent();
+        Double lat = i.getDoubleExtra("lat",0);
+        Double lng = i.getDoubleExtra("lng",0);
+        System.out.println("lat : " + lat +"long : " + lng);
+        setMarker( new LatLng(lat,lng));
+
+
+
+
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull LatLng latLng) {
@@ -114,7 +129,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                String address =  getAddress(latLng);
                String city = getCity(latLng);
                 MarkerModel markerModel = new MarkerModel(0, latLng.latitude, latLng.longitude, city , address , 0);
-                 markerModelList.add(markerModel);
+                // markerModelList.add(markerModel);
 
 
 
@@ -242,6 +257,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .snippet("nice place");
                  options.draggable(true);
         favMarker = mMap.addMarker(options);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng , 13));
+      //  mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
         favMarker.setTag(mName);
         mName++;
@@ -265,8 +282,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Location location = locationResult.getLastLocation();
                 LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-           userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Vir").snippet("your are here"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
+           //userMarker = mMap.addMarker(new MarkerOptions().position(userLocation).title("Vir").snippet("your are here"));
+              //  mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
             }
         };
 
